@@ -14,7 +14,7 @@ def fib(num):
         b = n 
         yield n
 
-for i in fib(30):
+for i in fib(20):
     print(i)
 
 
