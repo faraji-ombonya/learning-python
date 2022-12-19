@@ -18,9 +18,13 @@ except:
     exit()
 
 while True:
-    user_num = int(input(f"Select Your Lucky Number from {first_num} to {last_num}: "))
+    try:
+        user_num = int(input(f"Select Your Lucky Number from {first_num} to {last_num}: "))
+    except ValueError:
+        print("Please enter a number")
+        continue
     if lucky_num == user_num:
-        print("You won the lotto. Congratulations genious")
+        print("You won the lotto. Congratulations genius")
         break
     else:
         print("Keep trying")
