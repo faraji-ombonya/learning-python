@@ -9,8 +9,15 @@ def merge(pdf_list):
     '''
     merger = PdfWriter()
     for pdf in pdf_list:
-        merger.append(pdf)
+        try:
+            merger.append(pdf)
+        except:
+            print("Ooops")
+            print("Usage:   python .\pdf_merger.py pdf1.pdf pdf2.pdf")
+            exit()
+
     merger.write("merged.pdf")
     merger.close()
+    return None
 
 merge(pdf_list)
