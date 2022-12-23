@@ -10,7 +10,6 @@ try:
 except:
     print("Oops")
     print("Usage:   JPGtoPNGconverter.py path destination")
-
     exit()
 
 try:
@@ -18,6 +17,7 @@ try:
 except FileExistsError:
     pass
 except FileNotFoundError:
+    print("Usage:   JPGtoPNGconverter.py path destination")
     print("Invalid path. Exiting program..")
     exit()
 except:
