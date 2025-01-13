@@ -1,7 +1,4 @@
-from collections import Counter
-
-
-def minimum_anagram_size(s):
+def minimum_anagram_size(s: str):
     """
     Calculate the minimum size of an anagram group.
 
@@ -12,16 +9,23 @@ def minimum_anagram_size(s):
         int: Minimum size of an anagram group.
     """
 
-    groups = []
-    current_group = Counter()
+    # Get all the divisors
+    length = len(s)
+    divisors = [n for n in range(1, length + 1) if length % n == 0]
 
-    for char in s:
-        current_group[char] += 1
+    for d in divisors:
+        first_slice = s[:d]
 
-        print(current_group)
+        for i in range(0, length, d):
+            next_slice = s[i : i + d]
+            print(first_slice, next_slice)
+
+            first_slice_freq = {}
+            second_slice_freq= {}
+            # Count the frequency of the letters in the two slices
+        return d
+
     
 
 
-print(minimum_anagram_size("abba"))       
-print(minimum_anagram_size("ababaaaab"))
-print(minimum_anagram_size("cdef"))   
+minimum_anagram_size("aabbaaabaabaaabbaa")
