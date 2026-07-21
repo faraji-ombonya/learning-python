@@ -32,6 +32,20 @@ class Notification(ABC):
         pass
 
 
+class NotificationCollection:
+    def __init__(self, query_set):
+        pass
+
+    def mark_as_read(self):
+        pass
+
+    def delete(self):
+        pass
+
+    def get_query_set(self):
+        pass
+
+
 class Notifiable(ABC):
     """
     Inherited by a class that notifications can be sent to. e.g.
@@ -46,12 +60,15 @@ class Notifiable(ABC):
             channel.send()
 
     def notifications(self):
+        """Return all notifications for the notifiable entity."""
         pass
 
-    def unread_notifications(self):
+    def unread_notifications(self) -> NotificationCollection:
+        """Return all unread notifications for the notifiable entity."""
         pass
 
-    def read_notifications(self):
+    def read_notifications(self) -> NotificationCollection:
+        """Return all unread notifications for the notifiable entity."""
         pass
 
 
@@ -81,7 +98,7 @@ class Routes(BaseRoute):
         self.routes = routes
 
 
-class NotificationFacade(ABC):
+class NotificationFacade(object):
     @classmethod
     def send(cls, notifiables: list[Notifiable], notification: Notification):
         """
@@ -104,14 +121,14 @@ class NotificationFacade(ABC):
             n.notify(notification)
 
     @classmethod
-    def route(cls, delivery_channel, address):
+    def route(cls, channel, address):
         """
         Send an notification on demand.
 
         email, email_address
         sms, phone_number
         """
-        return Route(delivery_channel, address)
+        return Route(channel, address)
 
     @classmethod
     def routes(cls, routes: list[tuple[str, str]]):
@@ -123,6 +140,35 @@ class NotificationFacade(ABC):
         ]
         """
         return Routes(routes)
+
+
+class DeliveryChannel(ABC):
+
+    @abstractmethod
+    def send(self, notifiable: Notifiable, notification: Notification):
+        """Method"""
+        pass
+
+
+class AfricasTalkingChannel(DeliveryChannel):
+    def send(self, notifiable, notification):
+        message = notification.to_sms(notifiable)
+        phone_number = notifiable.route_notification_for_sms()
+        # TODO: send the message to africas talking
+        return
+
+
+# Message builders for various channels
+class Message(ABC):
+    """Abstract message builder class."""
+
+    @abstractmethod
+    def get_message(self):
+        return getattr(self, "message", None)
+
+
+class AfricasTalkingMessage(Message):
+    pass
 
 
 # Example usage
@@ -197,29 +243,3 @@ NotificationFacade.routes([("email", user2.email), ("sms", user2.phone)]).notify
 user1.notifications()
 user1.unread_notifications()
 user1.read_notifications()
-
-
-# TODO: Come up with an interface for plug and play delivery channels.
-class DeliveryChannel(ABC):
-
-    @abstractmethod
-    def send(self, notifiable: Notifiable, notification: Notification):
-        """Method"""
-        pass
-
-
-class AfricasTalkingChannel(DeliveryChannel):
-    def send(self, notifiable, notification):
-        message = notification.to_sms(notifiable)
-        phone_number = notifiable.route_notification_for_sms()
-        # TODO: send the message to africas talking
-        return
-
-
-# Message builders for various channels
-class ChannelMessage(ABC):
-    pass
-
-
-class AfricasTalkingMessage(ChannelMessage):
-    pass
