@@ -1,6 +1,6 @@
 """Laravel like notifications blueprint."""
 
-from abc import ABC
+from abc import ABC, abstractmethod
 
 
 class Notification(ABC):
@@ -9,6 +9,7 @@ class Notification(ABC):
     methods, e.g to_mail.
     """
 
+    @abstractmethod
     def via(self, notifiable):
         """Return a list of delivery channels.
 
@@ -36,6 +37,10 @@ class Notification(ABC):
         """Convert the notification to a message tailored for slack."""
         pass
 
+    def to_sms(self, notifiable: Notifiable):
+        """Convert the notification to a message tailored for sms."""
+        pass
+
 
 class Notifiable(ABC):
     """
@@ -45,7 +50,50 @@ class Notifiable(ABC):
 
     def notify(notification: Notification):
         """Send the notification to the notifiable."""
-        pass
+        delivery_channels = notification.via()
+
+        # Speculative approach 1.
+        if "email" in delivery_channels:
+            mail_message = notification.to_mail()
+            # TODO: Send the message to email
+
+        if "sms" in delivery_channels:
+            sms_message = notification.to_sms()
+            # TODO: Send the message to sms
+
+        if "telegram" in delivery_channels:
+            telegram_message = notification.to_telegram()
+            # TODO: Send the message to sms
+
+        if "database" in delivery_channels:
+            database_message = notification.to_database()
+            # TODO: Save the message to the database
+
+
+class BaseRoute(ABC):
+    def notify(self, notification: Notification):
+        """Send a notification to all the route entries."""
+
+        routes: list[tuple[str, str]] = self.routes
+
+        for r in routes:
+            # TODO: send the notification to the route.
+            pass
+
+
+class Route(BaseRoute):
+    def __init__(self, channel, address):
+        self.routes = [(channel, address)]
+
+    def route(self, channel, address):
+        """Add a rout to the list of routes and return self for chaining."""
+        self.routes.append((channel, address))
+        return self
+
+
+class Routes(BaseRoute):
+    def __init__(self, routes: list[tuple[str, str]]):
+        self.routes = routes
 
 
 class NotificationFacade(ABC):
@@ -57,7 +105,9 @@ class NotificationFacade(ABC):
 
         Probably invokes the notify method of the notifiable.
         """
-        pass
+        for n in notifiables:
+            # TODO: send asynchronously.
+            n.notify(notification)
 
     @classmethod
     def send_now(cls, notifiables: list[Notifiable], notification: Notification):
@@ -65,36 +115,29 @@ class NotificationFacade(ABC):
 
         Probably invokes the notify method of the notifiable.
         """
-        pass
+        for n in notifiables:
+            n.notify(notification)
 
     @classmethod
     def route(cls, delivery_channel, address):
         """
+        Send an notification on demand.
+
         email, email_address
         sms, phone_number
         """
-        return cls
+        return Route(delivery_channel, address)
 
     @classmethod
     def routes(cls, routes: list[tuple[str, str]]):
         """
+        Send a notification on demand.
         [
             (email, email_address),
             (sms, phone_number),
         ]
         """
-        return cls
-
-    def notify(self, notification: Notification):
-        """Called after a route chain.
-
-        E.g NotificationFacade.route().route().notify()
-        or NotificationFacade.routes().notify()
-
-        gets routes, populated by route() or routes()
-        and sends them the Notification
-        """
-        pass
+        return Routes(routes)
 
 
 # Example usage
@@ -164,3 +207,12 @@ NotificationFacade.route("email", user1.email).route("sms", user1.phone).notify(
 NotificationFacade.routes([("email", user2.email), ("sms", user2.phone)]).notify(
     welcome_notification
 )
+
+
+# TODO: Come up with an interface for plug and play delivery channels.
+class DeliveryChannel(ABC):
+
+    @abstractmethod
+    def send(self):
+        """Method"""
+        pass
