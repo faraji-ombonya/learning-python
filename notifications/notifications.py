@@ -22,25 +22,6 @@ class Notification(ABC):
         """Convert the notification to a message tailored for email."""
         pass
 
-    def to_database(self, notifiable: Notifiable):
-        """
-        Convert the notification to a message that can be stored
-        in the database.
-        """
-        pass
-
-    def to_telegram(self, notifiable: Notifiable):
-        """Convert the notification to a message tailored for telegram."""
-        pass
-
-    def to_slack(self, notifiable: Notifiable):
-        """Convert the notification to a message tailored for slack."""
-        pass
-
-    def to_sms(self, notifiable: Notifiable):
-        """Convert the notification to a message tailored for sms."""
-        pass
-
     def database_type(self, notifiable: Notifiable):
         pass
 
@@ -63,37 +44,6 @@ class Notifiable(ABC):
 
         for channel in delivery_channels:
             channel.send()
-
-        # Speculative approach 1.
-        if "email" in delivery_channels:
-            mail_message = notification.to_mail()
-
-            # Get email from email property of notifiable entity.
-            email = getattr(self, "email") or getattr(self, "email_address")
-
-            # The notifiable entity can decide which email address to use.
-            # by defining the `route_notification_for_email` method.
-            if hasattr(self, "route_notification_for_email"):
-                email = self.route_notification_for_email()
-
-            # TODO: Send the message to email
-
-        if "sms" in delivery_channels:
-            sms_message = notification.to_sms()
-            phone_number = getattr(self, "phone_number") or getattr(self, "phone")
-            if hasattr(self, "route_notification_for_sms"):
-                phone_number = self.route_notification_for_sms()
-            # TODO: Send the message to sms
-
-        if "telegram" in delivery_channels:
-            telegram_message = notification.to_telegram()
-            telegram_handle = self.telegram_handle
-            # TODO: Send the message to sms
-
-        if "database" in delivery_channels:
-            database_message = notification.to_database()
-            # models.Notification.objects.create()
-            # TODO: Save the message to the database
 
     def notifications(self):
         pass
@@ -268,4 +218,8 @@ class AfricasTalkingChannel(DeliveryChannel):
 
 # Message builders for various channels
 class ChannelMessage(ABC):
+    pass
+
+
+class AfricasTalkingMessage(ChannelMessage):
     pass
