@@ -10,13 +10,13 @@ class Notification(ABC):
     """
 
     @abstractmethod
-    def via(self, notifiable: Notifiable) -> list[DeliveryChannel]:
+    def via(self, notifiable: Notifiable) -> list[Channel]:
         """Return a list of delivery channels.
 
         Determines which delivery channels the notification will be
         delivered to.
         """
-        return [AfricasTalkingChannel]
+        return [AfricasTalking]
 
     def to_mail(self, notifiable: Notifiable):
         """Convert the notification to a message tailored for email."""
@@ -142,7 +142,7 @@ class NotificationFacade(object):
         return Routes(routes)
 
 
-class DeliveryChannel(ABC):
+class Channel(ABC):
 
     @abstractmethod
     def send(self, notifiable: Notifiable, notification: Notification):
@@ -150,7 +150,7 @@ class DeliveryChannel(ABC):
         pass
 
 
-class AfricasTalkingChannel(DeliveryChannel):
+class AfricasTalking(Channel):
     def send(self, notifiable, notification):
         message = notification.to_sms(notifiable)
         phone_number = notifiable.route_notification_for_sms()
@@ -198,7 +198,7 @@ class WelcomeNotification(Notification):
 
     def via(self, notifiable):
         """This notification will only be sent via email."""
-        return ["email"]
+        return [AfricasTalking]
 
     def to_mail(self, notifiable):
         return f"Welcome {notifiable.name}"
@@ -208,8 +208,8 @@ class PromoNotification(Notification):
     """Promo Notification sent to all users."""
 
     def via(self, notifiable):
-        """This notification will only be sent via email."""
-        return ["email"]
+        """This notification will only be sent africas talking integration."""
+        return [AfricasTalking]
 
     def to_mail(self, notifiable):
         return f"Hi {notifiable.name}. New offer for you!"
