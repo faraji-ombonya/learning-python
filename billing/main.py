@@ -44,14 +44,56 @@ class Billing:
         return User(name="james")
 
 
-class Billable:
+class SubscriptionBuilder:
+    def __init__(self, owner: User, type: str, prices: list):
+        self.owner = owner
+        """The model that is subscribing."""
+
+        self.type = type
+        """The type of the subscription."""
+
+        self.items = []
+        """The prices the customer is being subscribed to."""
+
+        for p in prices:
+            self.price(p)
+
+    def price(self, price, quantity: int | None = 1):
+        """Set a price on the subscription builder"""
+        return self
+
+    def create(self):
+        """Create a new subscription."""
+        if not (len(self.items)):
+            raise ValueError(
+                "Atleast one price is required when starting subscriptions."
+            )
+
+        
+        return Subscription()
+
+    def create_and_send(self):
+        """Create a new subscription and send an invoice to the customer."""
+        pass
+
+
+# Concerns
+
+
+class ManagesSubscriptions:
+    def new_subcription(self, type: str, prices: list):
+        """Begin creating a new subscription"""
+        return SubscriptionBuilder(owner=self, type=type, prices=prices)
+
+
+# End: Concens
+
+
+class Billable(ManagesSubscriptions):
     """Billable trait, inherited by a billable model like User."""
 
     def checkout(self):
         pass
-
-    def new_subscription(self, a: str, b: str):
-        return Subscription()
 
     def subscribed(self):
         """Determine a user's current subscription status"""
@@ -111,7 +153,83 @@ class User(Billable):
         self.name = name
 
 
+class PaymentMethod:
+    pass
+
+
+class SubscriptionItem:
+    def __init__(self):
+        self.object = "subscription_item"
+        """
+        String representing the object’s type. Objects of the same type
+        share the same value. Always has the value list.
+        """
+
+        self.data: list[dict] = [{}]
+        """Details about each object.
+        
+        Example
+        ```
+        [
+            {   
+                "id": string,
+                "object": "",
+                "billed_until": "",
+                "billing_thresholds": "",
+                "created":"",
+                "current_period_end":"",
+                "current_period_start":"",
+                "discounts":""
+                "metadata":{},
+                "price":""
+            },
+        ]
+        ```
+        """
+
+
 class Subscription:
+    def __init__(self):
+        self.id = ""
+        """Unique identifier for the object."""
+
+        self.automatic_tax = {}
+        """Automatic tax settings for this subscription."""
+
+        self.currency = ""
+        """
+        Three-letter ISO currency code, in lowercase.
+        Must be a supported currency.
+        """
+
+        self.customer = ""
+        """ID of the customer who owns the subscription."""
+
+        self.default_payment_method = ""
+        """ID of the default payment method for the subscription."""
+
+        self.description = ""
+        """The subscription's description."""
+
+        self.items: list[SubscriptionItem] = []
+        """List of subscription items, each with an attached price.
+        
+        items.object:
+        """
+
+        self.latest_invoice = ""
+        """
+        The most recent invoice this subscription has generated
+        over its lifecycle (for example, when it cycles or is updated).
+        """
+
+        self.metadata = ""
+
+        self.status = ""
+        """
+        Possible values are incomplete, incomplete_expired, trialing,
+        active, past_due, canceled, unpaid, or paused.
+        """
 
     def trial_days(self, n: int):
         self.n = n
@@ -123,10 +241,6 @@ class Subscription:
     def checkout(self):
         """Not sure if this checkout method should be here or Billable"""
         pass
-
-
-class SubscriptionItem:
-    pass
 
 
 class Order:
@@ -190,7 +304,7 @@ user1.checkout(
 
 
 # How a user might subscribe
-user1.new_subscription("default", "price_basic_monthly").trial_days(
+user1.new_subcription(type="default", prices="price_basic_monthly").trial_days(
     5
 ).allow_promotion_codes().checkout(
     {

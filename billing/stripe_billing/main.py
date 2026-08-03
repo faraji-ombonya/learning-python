@@ -3,6 +3,7 @@
 
 class Product:
     """A product can have many prices"""
+
     id = "1234"
 
     active = True
@@ -16,7 +17,6 @@ class Product:
     livemode = False
     metadata = {}
     name = ""
-
 
 
 class Price:
@@ -66,24 +66,33 @@ class Price:
 
 
 class Subscription:
-    id = ""
-    """Unique identifier for the object."""
+    def __init__(self):
+        self.id = ""
+        """Unique identifier for the object."""
 
-    currency = ""
-    """
-    Three-letter ISO currency code, in lowercase.
-    Must be a supported currency.
-    """
+        self.currency = ""
+        """
+        Three-letter ISO currency code, in lowercase.
+        Must be a supported currency.
+        """
 
-    customer = ""
-    """ID of the customer who owns the subscription."""
+        customer = ""
+        """ID of the customer who owns the subscription."""
 
-    default_payment_method = ""
-    """ID of the default payment method for the subscription."""
+        default_payment_method = ""
+        """ID of the default payment method for the subscription."""
 
-    items = []
-    """List of subscription items, each with an attached price.
-    
-    items.object:
+        items = []
+        """List of subscription items, each with an attached price.
+        
+        items.object:
 
-    """
+        """
+
+
+class Billable:
+    def __init__(self):
+
+        sub = Subscription()
+        sub.cur
+        
