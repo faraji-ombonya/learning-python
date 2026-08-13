@@ -37,4 +37,4 @@ I encourage contributions from the Python community! If you have improvements, b
 
 ## License
 
-This repository is open-source and is available under the [MIT License](LICENSE.md). Feel free to use the content and contribute, but please adhere to the license terms..
+This repository is open-source and is available under the [MIT License](LICENSE.md). Feel free to use the content and contribute, but please adhere to the license terms.
